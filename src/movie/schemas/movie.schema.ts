@@ -7,10 +7,10 @@ export class Movie {
     @Prop({ required: true })
     title: string;
 
-    @Prop({ required: true })
+    @Prop({ default: "" })
     description: string;
 
-    @Prop({ required: true })
+    @Prop({ default: "" })
     coverImage: string;
 
     @Prop({ default: false })
