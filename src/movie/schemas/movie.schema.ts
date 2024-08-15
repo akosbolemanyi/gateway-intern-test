@@ -3,7 +3,7 @@ import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 @Schema({
     timestamps: true,
 })
-export class Movie extends Document {
+export class Movie {
     @Prop({ required: true })
     title: string;
 
