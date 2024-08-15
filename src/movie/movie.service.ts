@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import {UpdateMovieDto} from "./dto/update-movie.dto";
 import {CreateMovieDto} from "./dto/create-movie.dto";
+import { Query } from 'express-serve-static-core';
 
 @Injectable()
 export class MovieService {
@@ -12,8 +13,22 @@ export class MovieService {
         private movieModel: mongoose.Model<Movie>,
     ) {}
 
-    async findAll(): Promise<Movie[]> {
-        return this.movieModel.find().exec();
+    async findAll(query: Query): Promise<Movie[]> {
+        const limit = 5;
+        const currentPage = Number(query.page) ?? 1;
+        const skip = limit * (currentPage - 1);
+
+        const search = query.keyword ? {
+            title: {
+                $regex: query.keyword,
+                $options: 'i'
+            },
+        } : {}
+        return this.movieModel.find(
+            { ...search })
+            .limit(limit)
+            .skip(skip)
+            .exec();
     }
 
     async findWinners(): Promise<Movie[]> {

@@ -1,16 +1,17 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query, Req} from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { Movie } from './schemas/movie.schema';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
+import { Query as ExpressQuery } from 'express-serve-static-core';
 
 @Controller('movies')
 export class MovieController {
     constructor(private movieService: MovieService) {}
 
     @Get()
-    async getAllMovies(): Promise<Movie[]> {
-        return this.movieService.findAll();
+    async getAllMovies(@Query() query: ExpressQuery): Promise<Movie[]> {
+        return this.movieService.findAll(query);
     }
 
     @Get('winners')
