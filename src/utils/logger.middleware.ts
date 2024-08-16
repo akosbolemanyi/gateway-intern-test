@@ -24,13 +24,13 @@ export class LoggerMiddleware implements NestMiddleware {
 
       if (statusCode >= 500) {
         logLevel = 'error';
-        message = `SERVER-SIDE ISSUES! ${method} | URL:${originalUrl} | STATUS CODE: ${statusCode} | IP: ${ip}`;
+        message = `Server-side issues! | Method: ${method} | URL:${originalUrl} | STATUS CODE: ${statusCode} | IP: ${ip}`;
       } else if (statusCode >= 400) {
         logLevel = 'warn';
-        message = `CLIENT-SIDE ISSUES! ${method} | URL:${originalUrl} | STATUS CODE: ${statusCode} | IP: ${ip}`;
+        message = `Client-side issues! | Method: ${method} | URL:${originalUrl} | STATUS CODE: ${statusCode} | IP: ${ip}`;
       } else {
         logLevel = 'log';
-        message = `${method} | URL:${originalUrl} | STATUS CODE: ${statusCode} | IP: ${ip}`;
+        message = `Method: ${method} | URL:${originalUrl} | STATUS CODE: ${statusCode} | IP: ${ip}`;
       }
 
       this.logger[logLevel](message);
