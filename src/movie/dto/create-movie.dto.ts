@@ -9,7 +9,7 @@ export class CreateMovieDto {
   readonly description: string;
 
   @IsString()
-  readonly coverImage: string;
+  coverImage: string;
 
   @IsBoolean()
   readonly isWinner: boolean;

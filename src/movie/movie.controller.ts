@@ -6,16 +6,15 @@ import {
   Param,
   Patch,
   Post,
-  Req,
-  UseInterceptors,
+  Req, UploadedFile, UseInterceptors,
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { Movie } from './schemas/movie.schema';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Request } from 'express';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import {FileInterceptor} from "@nestjs/platform-express";
+import {diskStorage} from "multer";
 
 @Controller('movies')
 export class MovieController {
@@ -38,7 +37,7 @@ export class MovieController {
 
   @Post(['new', ':id/new'])
   @UseInterceptors(
-    FileInterceptor('file', {
+    FileInterceptor('image', {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, callback) => {
@@ -47,7 +46,11 @@ export class MovieController {
       }),
     }),
   )
-  async createMovie(@Body() createMovieDto: CreateMovieDto): Promise<Movie> {
+  async createMovie(@Body() createMovieDto: CreateMovieDto, @UploadedFile() file: Express.Multer.File): Promise<Movie> {
+    if (file) {
+      console.log('file', file);
+      createMovieDto.coverImage = file.originalname;
+    }
     return this.movieService.create(createMovieDto);
   }
 

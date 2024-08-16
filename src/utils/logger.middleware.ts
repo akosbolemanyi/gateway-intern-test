@@ -39,10 +39,10 @@ export class LoggerMiddleware implements NestMiddleware {
         try {
           const parsedBody = JSON.parse(responseBody);
           if (parsedBody.message) {
-            this.logger[logLevel](`Error Message: ${parsedBody.message}`);
+            this.logger[logLevel](`Error message: ${parsedBody.message}`);
           }
         } catch {
-          this.logger[logLevel](`Error Message: ${responseBody}`);
+          this.logger[logLevel](`Error message: ${responseBody}`);
         }
       }
     });
