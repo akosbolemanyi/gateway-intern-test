@@ -7,12 +7,15 @@ import {
   Patch,
   Post,
   Req,
+  UseInterceptors,
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { Movie } from './schemas/movie.schema';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Request } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @Controller('movies')
 export class MovieController {
@@ -34,10 +37,17 @@ export class MovieController {
   }
 
   @Post(['new', ':id/new'])
-  async createMovie(
-    @Param('id') id: string,
-    @Body() createMovieDto: CreateMovieDto,
-  ): Promise<Movie> {
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, callback) => {
+          callback(null, `${Date.now()}-${file.originalname}`);
+        },
+      }),
+    }),
+  )
+  async createMovie(@Body() createMovieDto: CreateMovieDto): Promise<Movie> {
     return this.movieService.create(createMovieDto);
   }
 
