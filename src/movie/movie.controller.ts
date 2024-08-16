@@ -34,7 +34,7 @@ export class MovieController {
   }
 
   @Post(['new', ':id/new'])
-  async createMovieFromDetailPage(
+  async createMovie(
     @Param('id') id: string,
     @Body() createMovieDto: CreateMovieDto,
   ): Promise<Movie> {
