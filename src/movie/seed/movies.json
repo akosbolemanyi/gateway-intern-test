@@ -1,0 +1,74 @@
+[
+  {
+    "title": "Inception",
+    "description": "A thief who infiltrates people's minds through their dreams takes on one last job.",
+    "coverImage": "https://example.com/inception.jpg",
+    "isWinner": true
+  },
+  {
+    "title": "The Matrix",
+    "description": "A programmer discovers that the world he lives in is not real.",
+    "coverImage": "https://example.com/matrix.jpg",
+    "isWinner": false
+  },
+  {
+    "title": "The Shawshank Redemption",
+    "description": "Two imprisoned men bond over several years, finding solace and eventual redemption through acts of common decency.",
+    "coverImage": "https://example.com/shawshank.jpg",
+    "isWinner": true
+  },
+  {
+    "title": "The Godfather",
+    "description": "The aging patriarch of an organized crime dynasty transfers control of his empire to his reluctant son.",
+    "coverImage": "https://example.com/godfather.jpg",
+    "isWinner": true
+  },
+  {
+    "title": "The Dark Knight",
+    "description": "When the menace known as the Joker wreaks havoc, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.",
+    "coverImage": "https://example.com/darkknight.jpg",
+    "isWinner": true
+  },
+  {
+    "title": "Pulp Fiction",
+    "description": "The lives of two mob hitmen, a boxer, a gangster's wife, and a pair of diner bandits intertwine in four tales of violence and redemption.",
+    "coverImage": "https://example.com/pulpfiction.jpg",
+    "isWinner": false
+  },
+  {
+    "title": "Schindler's List",
+    "description": "In Nazi-occupied Poland during World War II, Oskar Schindler gradually becomes concerned for his Jewish workforce after witnessing their persecution by the Nazis.",
+    "coverImage": "https://example.com/schindler.jpg",
+    "isWinner": true
+  },
+  {
+    "title": "Fight Club",
+    "description": "An insomniac office worker and a devil-may-care soapmaker form an underground fight club that evolves into something much more.",
+    "coverImage": "https://example.com/fightclub.jpg",
+    "isWinner": false
+  },
+  {
+    "title": "Forrest Gump",
+    "description": "The presidencies of Kennedy and Johnson, the Vietnam War, and other historical events unfold through the perspective of an Alabama man with an IQ of 75.",
+    "coverImage": "https://example.com/forrestgump.jpg",
+    "isWinner": true
+  },
+  {
+    "title": "The Lord of the Rings: The Fellowship of the Ring",
+    "description": "A meek hobbit from the Shire and eight companions set out on a journey to destroy the powerful One Ring and save Middle-earth.",
+    "coverImage": "https://example.com/lotr.jpg",
+    "isWinner": true
+  },
+  {
+    "title": "Gladiator",
+    "description": "A former Roman General sets out to exact vengeance against the corrupt emperor who murdered his family and sent him into slavery.",
+    "coverImage": "https://example.com/gladiator.jpg",
+    "isWinner": true
+  },
+  {
+    "title": "The Silence of the Lambs",
+    "description": "A young FBI cadet must receive the help of an incarcerated and manipulative cannibal killer to catch another serial killer.",
+    "coverImage": "https://example.com/silence.jpg",
+    "isWinner": true
+  }
+]
