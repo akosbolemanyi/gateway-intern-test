@@ -54,6 +54,8 @@ Content-Type: application/json
   "isWinner": false
 }
 
+> {% client.global.set("movieId", response.body._id); %}
+
 ### Delete a movie by ID
 DELETE http://localhost:3000/movies/{{movieId}}
 Content-Type: application/json
