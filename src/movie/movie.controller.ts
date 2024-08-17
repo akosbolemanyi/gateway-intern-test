@@ -54,10 +54,17 @@ export class MovieController {
     }),*/
   ))
   @Post(['new', ':id/new'])
-  async createMovie(@Body() createMovieDto: CreateMovieDto, @UploadedFile() file: Express.Multer.File): Promise<Movie> {
+  async createMovie(@Body('data') data: string, @UploadedFile() file: Express.Multer.File): Promise<Movie> {
     this.logger.log(`Received file: ${file.originalname}`);
     this.logger.log(`File size: ${file.size} bytes`);
     this.logger.log(`MIME type: ${file.mimetype}`);
+    let createMovieDto: CreateMovieDto;
+    try {
+      // JSON stringet objektummá alakítjuk
+      createMovieDto = JSON.parse(data);
+    } catch (error) {
+      throw new InternalServerErrorException('Invalid JSON format');
+    }
     if (file) {
       const bucket = this.gridfsService.getBucket();
       const uploadStream = bucket.openUploadStream(file.originalname);
