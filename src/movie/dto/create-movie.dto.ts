@@ -1,16 +1,16 @@
 import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateMovieDto {
-  @IsNotEmpty()
-  @IsString()
+  // @IsNotEmpty()
+  // @IsString()
   readonly title: string;
 
-  @IsString()
+  // @IsString()
   readonly description: string;
 
-  @IsString()
+  // @IsString()
   coverImage: string;
 
-  @IsBoolean()
+  // @IsBoolean()
   readonly isWinner: boolean;
 }
