@@ -21,7 +21,7 @@ import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as fs from 'fs';
-import { GridfsService } from '../gridfs/gridfs.service';
+import { GridFSService } from './gridfs/gridfs.service';
 import * as path from 'path';
 import * as process from 'process';
 
@@ -30,7 +30,7 @@ export class MovieController {
   private readonly logger = new Logger(MovieController.name);
   constructor(
     private movieService: MovieService,
-    private gridfsService: GridfsService,
+    private gridFSService: GridFSService,
   ) {}
 
   @Get()
@@ -49,36 +49,25 @@ export class MovieController {
   }
 
   /**
-   * The hidden section is the solution for storing locally.
+   * The hidden section is the solution for storing images locally.
    */
-  @UseInterceptors(
-    FileInterceptor(
-      'image' /*, {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (req, file, callback) => {
-          callback(null, `${Date.now()}-${file.originalname}`);
-        },
-      }),
-    }),*/,
-    ),
-  )
+  @UseInterceptors(FileInterceptor('image'))
   @Post(['new', ':id/new'])
   async createMovie(
-    @Body('data') data: string,
+    @Body('data') createMovieDto: CreateMovieDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<Movie> {
-    this.logger.log(`Received file: ${file.originalname}`);
-    this.logger.log(`File size: ${file.size} bytes`);
-    this.logger.log(`MIME type: ${file.mimetype}`);
-    let createMovieDto: CreateMovieDto;
-    try {
-      createMovieDto = JSON.parse(data);
-    } catch (error) {
-      throw new InternalServerErrorException('Invalid JSON format!');
-    }
+    // this.logger.log(`Received file: ${file.originalname}`);
+    // this.logger.log(`File size: ${file.size} bytes`);
+    // this.logger.log(`MIME type: ${file.mimetype}`);
+    // let createMovieDto: CreateMovieDto;
+    // try {
+    //   createMovieDto = JSON.parse(data);
+    // } catch (error) {
+    //   throw new InternalServerErrorException('Invalid JSON format!');
+    // }
     if (file) {
-      const bucket = this.gridfsService.getBucket();
+      const bucket = this.gridFSService.getBucket();
       const uploadStream = bucket.openUploadStream(file.originalname);
       uploadStream.end(file.buffer);
 
@@ -91,7 +80,7 @@ export class MovieController {
   @Get('files/images')
   async getFiles() {
     try {
-      const bucket = this.gridfsService.getBucket();
+      const bucket = this.gridFSService.getBucket();
       const files = await bucket.find({}).toArray();
       return files.map((file) => ({
         filename: file.filename,
@@ -116,7 +105,7 @@ export class MovieController {
         throw new NotFoundException('Movie or cover image not found');
       }
 
-      const bucket = this.gridfsService.getBucket();
+      const bucket = this.gridFSService.getBucket();
       const downloadStream = bucket.openDownloadStreamByName(movie.coverImage);
 
       if (!downloadStream) {

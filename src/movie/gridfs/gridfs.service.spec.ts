@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GridfsService } from './gridfs.service';
+import { GridFSService } from './gridfs.service';
 
-describe('GridfsService', () => {
-  let service: GridfsService;
+describe('GridFSService', () => {
+  let service: GridFSService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GridfsService],
+      providers: [GridFSService],
     }).compile();
 
-    service = module.get<GridfsService>(GridfsService);
+    service = module.get<GridFSService>(GridFSService);
   });
 
   it('should be defined', () => {

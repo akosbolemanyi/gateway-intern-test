@@ -1,4 +1,4 @@
-### Get all movies (default pagination)
+### Get all movies (default pagination, default sort order => winners first)
 GET http://localhost:3000/movies
 Content-Type: application/json
 
@@ -6,20 +6,12 @@ Content-Type: application/json
 GET http://localhost:3000/movies?page=2
 Content-Type: application/json
 
-### Get all movies with search term
-GET http://localhost:3000/movies?search=inception
-Content-Type: application/json
-
 ### Get all movies sorted by title
 GET http://localhost:3000/movies?sort=title
 Content-Type: application/json
 
-### Get all movies sorted by isWinner
-GET http://localhost:3000/movies?sort=isWinner
-Content-Type: application/json
-
-### Get all movies sorted by title and isWinner
-GET http://localhost:3000/movies?sort=title,isWinner
+### Get all movies with search term
+GET http://localhost:3000/movies?search=inception
 Content-Type: application/json
 
 ### Get all winner movies
@@ -35,10 +27,12 @@ POST http://localhost:3000/movies/new
 Content-Type: application/json
 
 {
-  "title": "Avengers: Endgame",
-  "description": "The Avengers assemble once more in order to reverse Thanos' actions and restore balance to the universe.",
-  "coverImage": "https://example.com/avengers-endgame.jpg",
-  "isWinner": true
+  "data":  {
+    "title": "Avengers: Endgame",
+    "description": "The Avengers assemble once more in order to reverse Thanos' actions and restore balance to the universe.",
+    "coverImage": "https://example.com/avengers-endgame.jpg",
+    "isWinner": false
+  }
 }
 
 > {% client.global.set("movieId", response.body._id); %}

@@ -4,7 +4,7 @@ import { Movie, MovieDocument } from '../schemas/movie.schema';
 import { Model } from 'mongoose';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as process from 'process';
+//import * as process from 'process';
 
 export class MovieSeeder implements Seeder {
   constructor(

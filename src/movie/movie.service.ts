@@ -16,6 +16,10 @@ export class MovieService {
     @InjectModel(Movie.name) private readonly movieModel: mongoose.Model<Movie>,
   ) {}
 
+  /**
+   * Default sort order: winners come first then the others.
+   * Both sections are sorted alphabetically independently.
+   */
   async findAll(req: Request): Promise<Movie[]> {
     const limit = 5;
     const currentPage = Number(req.query.page) || 1;
@@ -30,20 +34,17 @@ export class MovieService {
         }
       : {};
 
-    const sort: { [key: string]: 1 | -1 } = {
-      isWinner: -1,
-      title: 1,
-    };
+    const sort: { [key: string]: 1 | -1 } = {};
 
-    const sortParam = req.query.sort as string | undefined;
-    const sortParams = sortParam ? sortParam.split(',') : [];
-    sortParams.forEach((param) => {
-      if (param === 'title') {
-        sort['title'] = 1;
-      } else if (param === 'isWinner') {
-        sort['isWinner'] = -1;
-      }
-    });
+    const sortParam = typeof req.query.sort === 'string' ? req.query.sort : '';
+    const sortParams: string[] = sortParam.split(',');
+
+    if (sortParams.includes('title')) {
+      sort['title'] = 1;
+    } else {
+      sort['isWinner'] = -1;
+      sort['title'] = 1;
+    }
 
     return this.movieModel
       .find(search)

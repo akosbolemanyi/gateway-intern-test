@@ -6,7 +6,7 @@ export type MovieDocument = Movie & Document;
   timestamps: true,
 })
 export class Movie {
-  @Prop({ default: '' })
+  @Prop({ required: true })
   title: string;
 
   @Prop({ default: '' })
