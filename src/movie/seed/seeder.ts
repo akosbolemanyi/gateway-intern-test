@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MovieSeeder } from './movie.seeder';
 import { Movie, MovieSchema } from '../schemas/movie.schema';
 import * as dotenv from 'dotenv';
+import * as process from 'process';
 dotenv.config();
 
 seeder({

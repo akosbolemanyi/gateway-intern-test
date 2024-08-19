@@ -35,7 +35,8 @@ export class MovieService {
       title: 1,
     };
 
-    const sortParams = req.query.sort?.toString().split(',') || [];
+    const sortParam = req.query.sort as string | undefined;
+    const sortParams = sortParam ? sortParam.split(',') : [];
     sortParams.forEach((param) => {
       if (param === 'title') {
         sort['title'] = 1;

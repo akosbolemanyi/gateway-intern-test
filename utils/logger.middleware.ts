@@ -19,7 +19,7 @@ export class LoggerMiddleware implements NestMiddleware {
     resp.on('finish', () => {
       const { statusCode } = resp;
 
-      let logLevel: 'log' | 'warn' | 'error' = 'log';
+      let logLevel: 'log' | 'warn' | 'error';
       let message: string;
 
       if (statusCode >= 500) {
