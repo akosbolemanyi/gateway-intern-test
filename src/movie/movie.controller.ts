@@ -3,13 +3,12 @@ import {
   Controller,
   Delete,
   Get,
-  InternalServerErrorException,
   Param,
   Patch,
   Post,
   Req,
   UploadedFile,
-  UseInterceptors, UsePipes,
+  UseInterceptors,
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { Movie } from './schemas/movie.schema';
@@ -17,7 +16,6 @@ import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { JsonValidationPipe } from '../utils/pipes/json-validation.pipe';
 
 @Controller('movies')
 export class MovieController {
