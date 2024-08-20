@@ -5,7 +5,7 @@ import { MovieModule } from './movie/movie.module';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import * as process from 'node:process';
-import { LoggerMiddleware } from './utils/logger.middleware';
+import { LoggerMiddleware } from './utils/middlewares/logger.middleware';
 import { GridFSService } from './movie/gridfs/gridfs.service';
 
 @Module({

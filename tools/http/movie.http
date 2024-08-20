@@ -27,7 +27,7 @@ POST http://localhost:3000/movies/new
 Content-Type: application/json
 
 {
-  "data":  {
+  "createData": {
     "title": "Avengers: Endgame",
     "description": "The Avengers assemble once more in order to reverse Thanos' actions and restore balance to the universe.",
     "coverImage": "https://example.com/avengers-endgame.jpg",
@@ -42,10 +42,12 @@ POST http://localhost:3000/movies/{{movieId}}/new
 Content-Type: application/json
 
 {
-  "title": "The Green Mile",
-  "description": "A death row corrections officer develops a unique relationship with an inmate who has a miraculous gift.",
-  "coverImage": "https://example.com/the-green-mile.jpg",
-  "isWinner": false
+  "createData": {
+    "title": "The Green Mile",
+    "description": "A death row corrections officer develops a unique relationship with an inmate who has a miraculous gift.",
+    "coverImage": "https://example.com/the-green-mile.jpg",
+    "isWinner": false
+  }
 }
 
 > {% client.global.set("movieId", response.body._id); %}
@@ -59,8 +61,10 @@ PATCH http://localhost:3000/movies/{{movieId}}
 Content-Type: application/json
 
 {
-  "title": "Altered",
-  "description": "Altered description",
-  "coverImage": "https://altered.com/the-green-mile.jpg",
-  "isWinner": true
+  "updateData": {
+    "title": "Altered",
+    "description": "Altered description",
+    "coverImage": "https://altered.com/the-green-mile.jpg",
+    "isWinner": true
+  }
 }
