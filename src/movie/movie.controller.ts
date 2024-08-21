@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { Movie } from './schemas/movie.schema';
-import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -40,7 +39,7 @@ export class MovieController {
   @UseInterceptors(FileInterceptor('image'))
   @Post(['new', ':id/new'])
   async createMovie(
-    @Body('createData', JsonValidationPipe) createMovieDto: CreateMovieDto,
+    @Body('createData', JsonValidationPipe) createMovieDto: any,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<Movie> {
     return this.movieService.create(createMovieDto, file);

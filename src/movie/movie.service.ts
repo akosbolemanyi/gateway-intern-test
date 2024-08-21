@@ -85,7 +85,10 @@ export class MovieService {
     createMovieDto: CreateMovieDto,
     file: Express.Multer.File,
   ): Promise<Movie> {
-    const movie = createMovieDto ?? new CreateMovieDto();
+    if (createMovieDto === null || createMovieDto.title === '') {
+      throw new BadRequestException('Title was not given!');
+    }
+    const movie = createMovieDto;
     if (file) {
       const bucket: GridFSBucket = this.gridFSService.getBucket();
       const newName = Date.now() + '-' + file.originalname;
