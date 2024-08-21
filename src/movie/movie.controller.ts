@@ -16,12 +16,11 @@ import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { JsonValidationPipe } from '../utils/pipes/json-validation.pipe';
 
 @Controller('movies')
 export class MovieController {
-  constructor(
-    private movieService: MovieService,
-  ) {}
+  constructor(private movieService: MovieService) {}
 
   @Get()
   async getAllMovies(@Req() req: Request): Promise<Movie[]> {
@@ -41,7 +40,7 @@ export class MovieController {
   @UseInterceptors(FileInterceptor('image'))
   @Post(['new', ':id/new'])
   async createMovie(
-    @Body('createData') createMovieDto: CreateMovieDto,
+    @Body('createData', JsonValidationPipe) createMovieDto: CreateMovieDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<Movie> {
     return this.movieService.create(createMovieDto, file);
@@ -56,7 +55,7 @@ export class MovieController {
   async downloadMovieCoverImage(
     @Param('movieId') movieId: string,
   ): Promise<string> {
-      return await this.movieService.downloadCoverImage(movieId);
+    return await this.movieService.downloadCoverImage(movieId);
   }
 
   @Delete(':id')
@@ -68,7 +67,7 @@ export class MovieController {
   @Patch(':id')
   async updateMovie(
     @Param('id') id: string,
-    @Body('updateData') updateMovieDto: UpdateMovieDto,
+    @Body('updateData', JsonValidationPipe) updateMovieDto: UpdateMovieDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<Movie> {
     return this.movieService.updateById(id, updateMovieDto, file);

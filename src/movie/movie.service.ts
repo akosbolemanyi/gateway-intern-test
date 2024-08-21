@@ -1,6 +1,8 @@
 import {
-  BadRequestException, HttpStatus,
-  Injectable, InternalServerErrorException,
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { Movie } from './schemas/movie.schema';
@@ -83,17 +85,20 @@ export class MovieService {
     createMovieDto: CreateMovieDto,
     file: Express.Multer.File,
   ): Promise<Movie> {
+    const movie = createMovieDto ?? new CreateMovieDto();
     if (file) {
       const bucket: GridFSBucket = this.gridFSService.getBucket();
-      const uploadStream = bucket.openUploadStream(file.originalname);
+      const newName = Date.now() + '-' + file.originalname;
+      const uploadStream = bucket.openUploadStream(newName);
       try {
         uploadStream.end(file.buffer);
-        createMovieDto.coverImage = file.originalname;
+        movie.coverImage = newName;
       } catch (error) {
+        console.log(error);
         throw new InternalServerErrorException('Error uploading file!');
       }
     }
-    return this.movieModel.create(createMovieDto);
+    return this.movieModel.create(movie);
   }
 
   async getCoverImages() {
@@ -114,7 +119,6 @@ export class MovieService {
   }
 
   async downloadCoverImage(movieId: string): Promise<string> {
-
     const isValid = mongoose.isValidObjectId(movieId);
 
     if (!isValid) {
@@ -172,7 +176,9 @@ export class MovieService {
       const bucket: GridFSBucket = this.gridFSService.getBucket();
 
       try {
-        const fileToDelete = await bucket.find({ filename: movie.coverImage }).toArray();
+        const fileToDelete = await bucket
+          .find({ filename: movie.coverImage })
+          .toArray();
 
         if (fileToDelete.length > 0) {
           const fileId = fileToDelete[0]._id;
@@ -209,11 +215,15 @@ export class MovieService {
       throw new NotFoundException(`Movie with id ${id} not found!`);
     }
 
+    const movie = updateMovieDto !== null ? updateMovieDto : existingMovie;
+
     if (file && existingMovie.coverImage) {
       const bucket: GridFSBucket = this.gridFSService.getBucket();
 
       try {
-        const fileToDelete = await bucket.find({ filename: existingMovie.coverImage }).toArray();
+        const fileToDelete = await bucket
+          .find({ filename: existingMovie.coverImage })
+          .toArray();
 
         if (fileToDelete.length > 0) {
           const fileId = fileToDelete[0]._id;
@@ -223,18 +233,20 @@ export class MovieService {
         throw new InternalServerErrorException('Error deleting old file!');
       }
 
-      const uploadStream = bucket.openUploadStream(file.originalname);
+      const newName = Date.now() + '-' + file.originalname;
+      const uploadStream = bucket.openUploadStream(newName);
 
       try {
         uploadStream.end(file.buffer);
-        updateMovieDto.coverImage = file.originalname;
+        movie.coverImage = newName;
       } catch (error) {
+        console.log(error);
         throw new InternalServerErrorException('Error uploading file!');
       }
     }
 
     const updatedMovie = await this.movieModel
-      .findByIdAndUpdate(id, updateMovieDto, {
+      .findByIdAndUpdate(id, movie, {
         new: true,
         runValidators: true,
       })
@@ -246,5 +258,4 @@ export class MovieService {
 
     return updatedMovie;
   }
-
 }
