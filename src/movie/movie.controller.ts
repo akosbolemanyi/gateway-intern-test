@@ -19,9 +19,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('movies')
 export class MovieController {
-  constructor(
-    private movieService: MovieService,
-  ) {}
+  constructor(private movieService: MovieService) {}
 
   @Get()
   async getAllMovies(@Req() req: Request): Promise<Movie[]> {
@@ -56,7 +54,7 @@ export class MovieController {
   async downloadMovieCoverImage(
     @Param('movieId') movieId: string,
   ): Promise<string> {
-      return await this.movieService.downloadCoverImage(movieId);
+    return await this.movieService.downloadCoverImage(movieId);
   }
 
   @Delete(':id')

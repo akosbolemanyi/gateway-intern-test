@@ -5,4 +5,4 @@ import { GridFSService } from './gridfs.service';
   providers: [GridFSService],
   exports: [GridFSService],
 })
-export class GridfsModule {}
+export class GridFSModule {}
