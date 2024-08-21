@@ -4,8 +4,8 @@ import * as process from 'process';
 
 @Injectable()
 export class GridFSService {
-    private readonly client: MongoClient;
-    private readonly db;
+  private readonly client: MongoClient;
+  private readonly db;
 
   constructor() {
     this.client = new MongoClient(process.env.DB_MONGO_URI);
