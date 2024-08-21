@@ -144,7 +144,7 @@ export class MovieService {
       throw new NotFoundException('File not found!');
     }
 
-    const filePath = path.join(process.cwd(), 'images', movie.coverImage);
+    const filePath = path.join(process.cwd(), 'downloads', movie.coverImage);
 
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
 
