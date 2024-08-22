@@ -3,10 +3,9 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { GridFSBucket, MongoClient } from 'mongodb';
+import { GridFSBucket, MongoClient, ObjectId } from 'mongodb';
 import * as process from 'process';
-import * as path from 'path';
-import * as fs from 'fs';
+import { Readable } from 'stream';
 
 @Injectable()
 export class GridFSService {
@@ -37,7 +36,7 @@ export class GridFSService {
       });
 
       uploadStream.on('finish', () => {
-        resolve(filename);
+        resolve(uploadStream.id.toString());
       });
 
       uploadStream.end(file.buffer);
@@ -61,30 +60,18 @@ export class GridFSService {
     }
   }
 
-  async downloadCoverImage(filename: string): Promise<string> {
+  async getCoverImageStream(objectId: ObjectId): Promise<Readable> {
     const bucket = this.getBucket();
-    const downloadStream = bucket.openDownloadStreamByName(filename);
-
-    if (!downloadStream) {
-      throw new NotFoundException('File not found!');
-    }
-
-    const filePath = path.join(process.cwd(), 'downloads', filename);
-
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-
-    const writeStream = fs.createWriteStream(filePath);
+    const downloadStream = bucket.openDownloadStream(objectId);
 
     return new Promise((resolve, reject) => {
-      downloadStream.pipe(writeStream);
-
-      writeStream.on('finish', () => {
-        resolve(`File ${filename} saved successfully at ${filePath}.`);
+      downloadStream.on('error', () => {
+        reject(new InternalServerErrorException('Error retrieving the image!'));
       });
-
-      writeStream.on('error', () => {
-        reject(new InternalServerErrorException('Error saving file!'));
+      downloadStream.on('end', () => {
+        reject(new NotFoundException('Image not found!'));
       });
+      resolve(downloadStream);
     });
   }
 }

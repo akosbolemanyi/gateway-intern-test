@@ -7,13 +7,14 @@ import {
   Patch,
   Post,
   Req,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { Movie } from './schemas/movie.schema';
 import { UpdateMovieDto } from './dto/update-movie.dto';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JsonValidationPipe } from '../utils/pipes/json-validation.pipe';
 
@@ -37,24 +38,22 @@ export class MovieController {
   }
 
   @UseInterceptors(FileInterceptor('image'))
-  @Post(['new', ':id/new'])
+  @Post()
   async createMovie(
-    @Body('createData', JsonValidationPipe) createMovieDto: any,
+    @Body('createData', JsonValidationPipe) createMovieDto: any, // CreateMovieDto kellene.
     @UploadedFile() file: Express.Multer.File,
   ): Promise<Movie> {
     return this.movieService.create(createMovieDto, file);
   }
 
-  @Get('files/images')
-  async getMovieCoverImages() {
-    return await this.movieService.getCoverImages();
-  }
-
-  @Get('download/:movieId')
-  async downloadMovieCoverImage(
-    @Param('movieId') movieId: string,
-  ): Promise<string> {
-    return await this.movieService.downloadCoverImage(movieId);
+  @Get(':id/image')
+  async getMovieCoverImage(
+    @Param('id') id: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const file = await this.movieService.getMovieCoverImage(id);
+    res.setHeader('Content-Type', ['image/png', 'image/jpg', 'image/jpeg']);
+    file.pipe(res);
   }
 
   @Delete(':id')

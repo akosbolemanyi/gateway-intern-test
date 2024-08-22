@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Movie } from './schemas/movie.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
@@ -11,6 +6,8 @@ import { UpdateMovieDto } from './dto/update-movie.dto';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { Request } from 'express';
 import { GridFSService } from './gridfs/gridfs.service';
+import { Types } from 'mongoose';
+import { Readable } from 'stream';
 
 @Injectable()
 export class MovieService {
@@ -69,46 +66,21 @@ export class MovieService {
     createMovieDto: CreateMovieDto,
     file: Express.Multer.File,
   ): Promise<Movie> {
-    if (createMovieDto === null || createMovieDto.title === '') {
-      throw new BadRequestException('Title was not given!');
-    }
-
+    let coverImageID = '';
     if (file) {
-      createMovieDto.coverImage =
-        await this.gridFSService.uploadCoverImage(file);
+      coverImageID = await this.gridFSService.uploadCoverImage(file);
     }
 
-    return this.movieModel.create(createMovieDto);
+    return this.movieModel.create({
+      ...createMovieDto,
+      coverImage: coverImageID,
+    });
   }
 
-  async getCoverImages() {
-    try {
-      const bucket = this.gridFSService.getBucket();
-      const files = await bucket.find({}).toArray();
-      return files.map((file) => ({
-        filename: file.filename,
-        length: file.length,
-        uploadDate: file.uploadDate,
-      }));
-    } catch (error) {
-      return {
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Error retrieving files!',
-      };
-    }
-  }
-
-  async downloadCoverImage(movieId: string): Promise<string> {
-    const movie = await Movie.findAndValidateMovieById(
-      this.movieModel,
-      movieId,
-    );
-
-    if (!movie.coverImage) {
-      throw new NotFoundException('Cover image not found!');
-    }
-
-    return this.gridFSService.downloadCoverImage(movie.coverImage);
+  async getMovieCoverImage(id: string): Promise<Readable> {
+    const movie = await Movie.findAndValidateMovieById(this.movieModel, id);
+    const objectId = new Types.ObjectId(movie.coverImage);
+    return await this.gridFSService.getCoverImageStream(objectId);
   }
 
   async deleteById(id: string): Promise<Movie> {
@@ -143,7 +115,7 @@ export class MovieService {
 
     if (file && existingMovie.coverImage) {
       await this.gridFSService.deleteCoverImage(existingMovie.coverImage);
-      movie.coverImage = await this.gridFSService.uploadCoverImage(file);
+      //movie.coverImage = await this.gridFSService.uploadCoverImage(file);
     }
 
     const updatedMovie = await this.movieModel
