@@ -92,7 +92,8 @@ export class MovieService {
 
     if (movie.coverImage) {
       try {
-        await this.gridFSService.deleteCoverImage(movie.coverImage);
+        const objectId = new Types.ObjectId(movie.coverImage);
+        await this.gridFSService.deleteCoverImage(objectId);
       } catch (error) {
         console.error(`Error deleting cover image ${movie.coverImage}:`, error);
       }
@@ -111,15 +112,26 @@ export class MovieService {
       id,
     );
 
-    const movie = updateMovieDto !== null ? updateMovieDto : existingMovie;
+    const updatedMovieData: Partial<Movie> = { ...updateMovieDto };
 
-    if (file && existingMovie.coverImage) {
-      await this.gridFSService.deleteCoverImage(existingMovie.coverImage);
-      //movie.coverImage = await this.gridFSService.uploadCoverImage(file);
+    if (file) {
+      if (existingMovie.coverImage) {
+        try {
+          const objectId = new Types.ObjectId(existingMovie.coverImage);
+          await this.gridFSService.deleteCoverImage(objectId);
+        } catch (error) {
+          console.error(
+            `Error deleting cover image ${existingMovie.coverImage}:`,
+            error,
+          );
+        }
+      }
+      updatedMovieData.coverImage =
+        await this.gridFSService.uploadCoverImage(file);
     }
 
     const updatedMovie = await this.movieModel
-      .findByIdAndUpdate(id, movie, {
+      .findByIdAndUpdate(id, updatedMovieData, {
         new: true,
         runValidators: true,
       })

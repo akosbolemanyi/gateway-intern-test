@@ -6,6 +6,7 @@ import {
 import { GridFSBucket, MongoClient, ObjectId } from 'mongodb';
 import * as process from 'process';
 import { Readable } from 'stream';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class GridFSService {
@@ -25,13 +26,11 @@ export class GridFSService {
   }
 
   async uploadCoverImage(file: Express.Multer.File): Promise<string> {
-    const filename = Date.now() + '-' + file.originalname;
     const bucket = this.getBucket();
-    const uploadStream = bucket.openUploadStream(filename);
+    const uploadStream = bucket.openUploadStream(file.originalname);
 
     return new Promise((resolve, reject) => {
-      uploadStream.on('error', (error) => {
-        console.error('Error uploading file:', error);
+      uploadStream.on('error', () => {
         reject(new InternalServerErrorException('Error uploading file!'));
       });
 
@@ -43,18 +42,11 @@ export class GridFSService {
     });
   }
 
-  async deleteCoverImage(filename: string): Promise<void> {
+  async deleteCoverImage(objectId: Types.ObjectId): Promise<void> {
     const bucket = this.getBucket();
 
     try {
-      const fileToDelete = await bucket.find({ filename }).toArray();
-
-      if (fileToDelete.length > 0) {
-        const fileId = fileToDelete[0]._id;
-        await bucket.delete(fileId);
-      } else {
-        throw new InternalServerErrorException('Cover image not found!');
-      }
+      await bucket.delete(objectId);
     } catch (error) {
       throw new InternalServerErrorException('Error deleting cover image!');
     }
