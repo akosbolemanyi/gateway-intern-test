@@ -23,7 +23,7 @@ GET http://localhost:3000/movies/{{movieId}}
 Content-Type: application/json
 
 ### Create a new movie
-POST http://localhost:3000/movies/new
+POST http://localhost:3000/movies
 Content-Type: application/json
 
 {
@@ -38,28 +38,9 @@ Content-Type: application/json
 > {% client.global.set("movieId", response.body._id); %}
 
 
-### Create a new movie with from a details page (with a specified ID)
-POST http://localhost:3000/movies/{{movieId}}/new
-Content-Type: application/json
-
-{
-  "createData": {
-    "title": "The Green Mile",
-    "description": "A death row corrections officer develops a unique relationship with an inmate who has a miraculous gift.",
-    "coverImage": "https://example.com/the-green-mile.jpg",
-    "isWinner": false
-  }
-}
-
-> {% client.global.set("movieId", response.body._id); %}
-
 ### Get the list of movie cover images.
 GET http://localhost:3000/movies/files/images
 Content-Type: application/json
-
-#### Download a movie's cover image by ID
-#GET http://localhost:3000/movies/download/{{movieId}}
-#Content-Type: application/json
 
 ### Delete a movie by ID
 DELETE http://localhost:3000/movies/{{movieId}}
