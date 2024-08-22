@@ -14,7 +14,7 @@ export class Movie {
   @Prop({ default: '' })
   description: string;
 
-  @Prop({ default: '' })
+  @Prop()
   coverImage: string;
 
   @Prop({ default: false })

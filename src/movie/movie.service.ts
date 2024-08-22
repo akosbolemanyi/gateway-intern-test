@@ -66,7 +66,7 @@ export class MovieService {
     createMovieDto: CreateMovieDto,
     file: Express.Multer.File,
   ): Promise<Movie> {
-    let coverImageID = '';
+    let coverImageID;
     if (file) {
       coverImageID = await this.gridFSService.uploadCoverImage(file);
     }

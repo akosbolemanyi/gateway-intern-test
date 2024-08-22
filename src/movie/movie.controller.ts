@@ -17,6 +17,7 @@ import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Request, Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JsonValidationPipe } from '../utils/pipes/json-validation.pipe';
+import { FileValidationPipe } from '../utils/pipes/file-validation.pipe';
 
 @Controller('movies')
 export class MovieController {
@@ -41,7 +42,7 @@ export class MovieController {
   @Post()
   async createMovie(
     @Body('createData', JsonValidationPipe) createMovieDto: any, // CreateMovieDto kellene.
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(FileValidationPipe) file: Express.Multer.File,
   ): Promise<Movie> {
     return this.movieService.create(createMovieDto, file);
   }
