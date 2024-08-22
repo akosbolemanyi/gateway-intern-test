@@ -2,7 +2,6 @@ import {
   BadRequestException,
   HttpStatus,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { Movie } from './schemas/movie.schema';
@@ -11,11 +10,7 @@ import * as mongoose from 'mongoose';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { Request } from 'express';
-import * as path from 'path';
 import { GridFSService } from './gridfs/gridfs.service';
-import * as fs from 'fs';
-import * as process from 'process';
-import { GridFSBucket } from 'mongodb';
 
 @Injectable()
 export class MovieService {
@@ -67,18 +62,7 @@ export class MovieService {
   }
 
   async findById(id: string): Promise<Movie> {
-    const isValid = mongoose.isValidObjectId(id);
-
-    if (!isValid) {
-      throw new BadRequestException('Please give a valid id!');
-    }
-
-    const movie = await this.movieModel.findById(id).exec();
-
-    if (!movie) {
-      throw new NotFoundException(`Movie with id ${id} not found!`);
-    }
-    return movie;
+    return Movie.findAndValidateMovieById(this.movieModel, id);
   }
 
   async create(
@@ -88,20 +72,13 @@ export class MovieService {
     if (createMovieDto === null || createMovieDto.title === '') {
       throw new BadRequestException('Title was not given!');
     }
-    const movie = createMovieDto;
+
     if (file) {
-      const bucket: GridFSBucket = this.gridFSService.getBucket();
-      const newName = Date.now() + '-' + file.originalname;
-      const uploadStream = bucket.openUploadStream(newName);
-      try {
-        uploadStream.end(file.buffer);
-        movie.coverImage = newName;
-      } catch (error) {
-        console.log(error);
-        throw new InternalServerErrorException('Error uploading file!');
-      }
+      createMovieDto.coverImage =
+        await this.gridFSService.uploadCoverImage(file);
     }
-    return this.movieModel.create(movie);
+
+    return this.movieModel.create(createMovieDto);
   }
 
   async getCoverImages() {
@@ -122,83 +99,34 @@ export class MovieService {
   }
 
   async downloadCoverImage(movieId: string): Promise<string> {
-    const isValid = mongoose.isValidObjectId(movieId);
+    const movie = await Movie.findAndValidateMovieById(
+      this.movieModel,
+      movieId,
+    );
 
-    if (!isValid) {
-      throw new BadRequestException('Please give a valid id!');
-    }
-
-    const movie = await this.findById(movieId);
-
-    if (!movie) {
-      throw new NotFoundException('Movie not found!');
-    }
     if (!movie.coverImage) {
       throw new NotFoundException('Cover image not found!');
     }
 
-    const bucket = this.gridFSService.getBucket();
-    const downloadStream = bucket.openDownloadStreamByName(movie.coverImage);
-
-    if (!downloadStream) {
-      throw new NotFoundException('File not found!');
-    }
-
-    const filePath = path.join(process.cwd(), 'downloads', movie.coverImage);
-
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-
-    const writeStream = fs.createWriteStream(filePath);
-
-    downloadStream.pipe(writeStream);
-
-    return new Promise((resolve, reject) => {
-      writeStream.on('finish', () => {
-        resolve(`File ${movie.coverImage} saved successfully at ${filePath}.`);
-      });
-      writeStream.on('error', () => {
-        reject(new InternalServerErrorException('Error saving file!'));
-      });
-    });
+    return this.gridFSService.downloadCoverImage(movie.coverImage);
   }
 
   async deleteById(id: string): Promise<Movie> {
-    const isValid = mongoose.isValidObjectId(id);
+    const movie = await Movie.findAndValidateMovieById(this.movieModel, id);
 
-    if (!isValid) {
-      throw new BadRequestException('Please give a valid id!');
-    }
+    const deletedMovie = await this.movieModel.findByIdAndDelete(id).exec();
 
-    const movie = await this.movieModel.findById(id).exec();
-
-    if (!movie) {
-      throw new NotFoundException(`Movie with id ${id} not found!`);
-    }
+    Movie.throwIfMovieNotFound(deletedMovie, id);
 
     if (movie.coverImage) {
-      const bucket: GridFSBucket = this.gridFSService.getBucket();
-
       try {
-        const fileToDelete = await bucket
-          .find({ filename: movie.coverImage })
-          .toArray();
-
-        if (fileToDelete.length > 0) {
-          const fileId = fileToDelete[0]._id;
-          await bucket.delete(fileId);
-        }
+        await this.gridFSService.deleteCoverImage(movie.coverImage);
       } catch (error) {
-        throw new InternalServerErrorException('Error deleting cover image!');
+        console.error(`Error deleting cover image ${movie.coverImage}:`, error);
       }
-
-      const deletedMovie = await this.movieModel.findByIdAndDelete(id).exec();
-
-      if (!deletedMovie) {
-        throw new NotFoundException(`Movie with id ${id} not found!`);
-      }
-
-      return deletedMovie;
     }
+
+    return deletedMovie;
   }
 
   async updateById(
@@ -206,46 +134,16 @@ export class MovieService {
     updateMovieDto: UpdateMovieDto,
     file?: Express.Multer.File,
   ): Promise<Movie> {
-    const isValid = mongoose.isValidObjectId(id);
-
-    if (!isValid) {
-      throw new BadRequestException('Please give a valid id!');
-    }
-
-    const existingMovie = await this.movieModel.findById(id).exec();
-
-    if (!existingMovie) {
-      throw new NotFoundException(`Movie with id ${id} not found!`);
-    }
+    const existingMovie = await Movie.findAndValidateMovieById(
+      this.movieModel,
+      id,
+    );
 
     const movie = updateMovieDto !== null ? updateMovieDto : existingMovie;
 
     if (file && existingMovie.coverImage) {
-      const bucket: GridFSBucket = this.gridFSService.getBucket();
-
-      try {
-        const fileToDelete = await bucket
-          .find({ filename: existingMovie.coverImage })
-          .toArray();
-
-        if (fileToDelete.length > 0) {
-          const fileId = fileToDelete[0]._id;
-          await bucket.delete(fileId);
-        }
-      } catch (error) {
-        throw new InternalServerErrorException('Error deleting old file!');
-      }
-
-      const newName = Date.now() + '-' + file.originalname;
-      const uploadStream = bucket.openUploadStream(newName);
-
-      try {
-        uploadStream.end(file.buffer);
-        movie.coverImage = newName;
-      } catch (error) {
-        console.log(error);
-        throw new InternalServerErrorException('Error uploading file!');
-      }
+      await this.gridFSService.deleteCoverImage(existingMovie.coverImage);
+      movie.coverImage = await this.gridFSService.uploadCoverImage(file);
     }
 
     const updatedMovie = await this.movieModel
@@ -255,9 +153,7 @@ export class MovieService {
       })
       .exec();
 
-    if (!updatedMovie) {
-      throw new NotFoundException(`Movie with id ${id} not found!`);
-    }
+    Movie.throwIfMovieNotFound(updatedMovie, id);
 
     return updatedMovie;
   }
