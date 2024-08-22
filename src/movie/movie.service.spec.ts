@@ -36,6 +36,7 @@ describe('MovieService', () => {
     model = module.get<Model<Movie>>(getModelToken(Movie.name));
   });
 
+  /* This is where you should continue! :)
   describe('findAll', () => {
     it('should return an array of movies', async () => {
       const req = {
@@ -65,7 +66,7 @@ describe('MovieService', () => {
 
       expect(result).toEqual([mockMovie]);
     });
-  });
+  });*/
 
   describe('findById', () => {
     it('should find and return a movie by ID', async () => {

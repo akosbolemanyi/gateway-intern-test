@@ -13,7 +13,9 @@ export class TransformAndValidatePipe implements PipeTransform {
       } catch (error) {
         throw new BadRequestException('Invalid JSON format!');
       }
-    } else if (typeof value !== 'object' || value === null) {
+    } else if (typeof value === 'object') {
+      throw new BadRequestException('Raw object is not acceptable!');
+    } else {
       throw new BadRequestException('Invalid data format!');
     }
 
