@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { Movie } from './schemas/movie.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
+import { Types } from 'mongoose';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { Request } from 'express';
 import { GridFSService } from './gridfs/gridfs.service';
-import { Types } from 'mongoose';
 import { Readable } from 'stream';
 
 @Injectable()
@@ -63,21 +63,21 @@ export class MovieService {
   }
 
   async create(
-    createMovieDto: CreateMovieDto,
-    file: Express.Multer.File,
+    data: CreateMovieDto,
+    file?: Express.Multer.File,
   ): Promise<Movie> {
-    let coverImageID;
+    let coverImageID: string;
     if (file) {
-      coverImageID = await this.gridFSService.uploadCoverImage(file);
+      coverImageID = await this.gridFSService.upload(file);
     }
 
     return this.movieModel.create({
-      ...createMovieDto,
+      ...data,
       coverImage: coverImageID,
     });
   }
 
-  async getMovieCoverImage(id: string): Promise<Readable> {
+  async getCoverImage(id: string): Promise<Readable> {
     const movie = await Movie.findAndValidateMovieById(this.movieModel, id);
     const objectId = new Types.ObjectId(movie.coverImage);
     return await this.gridFSService.getCoverImageStream(objectId);
@@ -86,25 +86,21 @@ export class MovieService {
   async deleteById(id: string): Promise<Movie> {
     const movie = await Movie.findAndValidateMovieById(this.movieModel, id);
 
-    const deletedMovie = await this.movieModel.findByIdAndDelete(id).exec();
-
-    Movie.throwIfMovieNotFound(deletedMovie, id);
-
     if (movie.coverImage) {
       try {
         const objectId = new Types.ObjectId(movie.coverImage);
-        await this.gridFSService.deleteCoverImage(objectId);
+        await this.gridFSService.delete(objectId);
       } catch (error) {
         console.error(`Error deleting cover image ${movie.coverImage}:`, error);
       }
     }
 
-    return deletedMovie;
+    return await this.movieModel.findByIdAndDelete(id).exec();
   }
 
   async updateById(
     id: string,
-    updateMovieDto: UpdateMovieDto,
+    data: UpdateMovieDto,
     file?: Express.Multer.File,
   ): Promise<Movie> {
     const existingMovie = await Movie.findAndValidateMovieById(
@@ -112,13 +108,13 @@ export class MovieService {
       id,
     );
 
-    const updatedMovieData: Partial<Movie> = { ...updateMovieDto };
+    const updateData: Partial<Movie> = { ...data };
 
     if (file) {
       if (existingMovie.coverImage) {
         try {
           const objectId = new Types.ObjectId(existingMovie.coverImage);
-          await this.gridFSService.deleteCoverImage(objectId);
+          await this.gridFSService.delete(objectId);
         } catch (error) {
           console.error(
             `Error deleting cover image ${existingMovie.coverImage}:`,
@@ -126,19 +122,14 @@ export class MovieService {
           );
         }
       }
-      updatedMovieData.coverImage =
-        await this.gridFSService.uploadCoverImage(file);
+      updateData.coverImage = await this.gridFSService.upload(file);
     }
 
-    const updatedMovie = await this.movieModel
-      .findByIdAndUpdate(id, updatedMovieData, {
+    return await this.movieModel
+      .findByIdAndUpdate(id, updateData, {
         new: true,
         runValidators: true,
       })
       .exec();
-
-    Movie.throwIfMovieNotFound(updatedMovie, id);
-
-    return updatedMovie;
   }
 }

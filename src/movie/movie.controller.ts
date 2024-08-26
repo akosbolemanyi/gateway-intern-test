@@ -54,8 +54,8 @@ export class MovieController {
     @Param('id') id: string,
     @Res() res: Response,
   ): Promise<void> {
-    const file = await this.movieService.getMovieCoverImage(id);
-    res.setHeader('Content-Type', 'image');
+    const file = await this.movieService.getCoverImage(id);
+    res.setHeader('Content-Type', 'image/png');
     file.pipe(res);
   }
 

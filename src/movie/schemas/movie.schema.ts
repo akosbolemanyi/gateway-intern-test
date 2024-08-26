@@ -26,19 +26,15 @@ export class Movie {
     }
   }
 
-  static throwIfMovieNotFound(movie: Movie, id: string): void {
-    if (!movie) {
-      throw new NotFoundException(`Movie with id ${id} not found!`);
-    }
-  }
-
   static async findAndValidateMovieById(
     movieModel: mongoose.Model<Movie>,
     id: string,
   ): Promise<Movie> {
     this.validateObjectId(id);
     const movie = await movieModel.findById(id).exec();
-    this.throwIfMovieNotFound(movie, id);
+    if (!movie) {
+      throw new NotFoundException(`Movie with id ${id} not found!`);
+    }
     return movie;
   }
 }

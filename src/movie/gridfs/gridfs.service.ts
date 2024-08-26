@@ -25,7 +25,7 @@ export class GridFSService {
     return this.bucket;
   }
 
-  async uploadCoverImage(file: Express.Multer.File): Promise<string> {
+  async upload(file: Express.Multer.File): Promise<string> {
     const bucket = this.getBucket();
     const uploadStream = bucket.openUploadStream(file.originalname);
 
@@ -42,7 +42,7 @@ export class GridFSService {
     });
   }
 
-  async deleteCoverImage(objectId: Types.ObjectId): Promise<void> {
+  async delete(objectId: Types.ObjectId): Promise<void> {
     const bucket = this.getBucket();
 
     try {
