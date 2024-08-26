@@ -5,6 +5,11 @@ import { Movie } from './schemas/movie.schema';
 import mongoose, { Model } from 'mongoose';
 import { BadRequestException } from '@nestjs/common';
 
+const mockGridFSService = {
+  uploadCoverImage: jest.fn(),
+  deleteCoverImage: jest.fn(),
+};
+
 describe('MovieService', () => {
   let movieService: MovieService;
   let model: Model<Movie>;
@@ -13,7 +18,6 @@ describe('MovieService', () => {
     _id: '61c0ccf11d7bf83d153d7c06',
     title: 'Movie Title',
     description: 'Movie Description',
-    coverImages: 'Cover Image',
     isWinner: false,
   };
 
@@ -21,6 +25,7 @@ describe('MovieService', () => {
     find: jest.fn(),
     findById: jest.fn(),
   };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -28,6 +33,10 @@ describe('MovieService', () => {
         {
           provide: getModelToken(Movie.name),
           useValue: mockMovieService,
+        },
+        {
+          provide: 'GridFSService',
+          useValue: mockGridFSService,
         },
       ],
     }).compile();

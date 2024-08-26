@@ -30,7 +30,7 @@ export class TransformAndValidatePipe implements PipeTransform {
       }));
 
       throw new BadRequestException({
-        message: 'Validation failed.',
+        message: 'String validation failed.',
         errors: errorMessages,
       });
     }

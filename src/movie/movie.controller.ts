@@ -68,10 +68,11 @@ export class MovieController {
   @Patch(':id')
   async updateMovie(
     @Param('id') id: string,
-    @Body('updateData', new TransformAndValidatePipe(UpdateMovieDto))
-    data: UpdateMovieDto,
+    @Body('updateData')
+    data: string,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<Movie> {
-    return this.movieService.updateById(id, data, file);
+    const movie = new TransformAndValidatePipe(UpdateMovieDto).transform(data);
+    return this.movieService.updateById(id, movie, file);
   }
 }
