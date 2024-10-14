@@ -7,6 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import * as process from 'node:process';
 import { LoggerMiddleware } from './utils/middlewares/logger.middleware';
 import { GridFSService } from './movie/gridfs/gridfs.service';
+import { HtmlAnalyzerModule } from './html-analyzer/html-analyzer.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { GridFSService } from './movie/gridfs/gridfs.service';
     }),
     MongooseModule.forRoot(process.env.DB_MONGO_URI),
     MovieModule,
+    HtmlAnalyzerModule,
   ],
   controllers: [AppController],
   providers: [AppService, GridFSService],
